@@ -11,8 +11,3 @@ type User struct {
 	Email    *string `gorm:"unique"`
 	Password string  `gorm:"not null"`
 }
-
-type Login struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
