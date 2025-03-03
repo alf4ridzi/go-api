@@ -13,5 +13,5 @@ func main() {
 
 	r := gin.Default()
 	routes.MapRoutes(r)
-	r.Run(":8080")
+	r.Run()
 }
