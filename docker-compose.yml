@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   app:
     build:
@@ -8,14 +10,34 @@ services:
       - "8080:8080"
     restart: unless-stopped
     environment:
-      DB_HOST: localhost
+      DB_HOST: db
       DB_USER: alfa
       DB_PASSWORD: alfa
       DB_NAME: testapi
       DB_PORT: 5432
+    depends_on:
+      - db
+    networks:
+      - go-network
+
+  db:
+    image: postgres:16-alpine
+    container_name: go-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: alfa
+      POSTGRES_PASSWORD: alfa
+      POSTGRES_DB: testapi
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
     networks:
       - go-network
 
 networks:
   go-network:
     driver: bridge
+
+volumes:
+  pgdata:

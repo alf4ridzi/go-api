@@ -17,6 +17,6 @@ func LoadEnvVariables() {
 	envPath := filepath.Join(rootPath, ".env")
 	err = godotenv.Load(envPath)
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatalf("Error loading .env file from %s: %v", envPath, err)
 	}
 }

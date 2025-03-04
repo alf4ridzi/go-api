@@ -28,6 +28,9 @@ WORKDIR /root/
 # Copy binary dari builder
 COPY --from=builder /app/main .
 
+# Copy file .env agar bisa dibaca oleh aplikasi
+COPY .env .env
+
 # Expose port yang digunakan oleh aplikasi
 EXPOSE 8080
 
