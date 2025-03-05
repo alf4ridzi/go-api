@@ -15,7 +15,8 @@ func NewIndexController() *IndexController {
 
 func (c *IndexController) Index(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
-		"status": "success",
-		"data":   nil,
+		"status":  "success",
+		"data":    nil,
+		"message": "API is UP",
 	})
 }
