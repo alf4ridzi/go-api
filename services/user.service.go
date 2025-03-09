@@ -4,6 +4,7 @@ import (
 	"api/crypto"
 	"api/models"
 	"api/repositories"
+	"context"
 	"errors"
 )
 
@@ -15,9 +16,9 @@ func NewUserService(repo *repositories.UserRepositories) *UserService {
 	return &UserService{repo: repo}
 }
 
-func (s *UserService) RegisterUser(user *models.User) error {
+func (s *UserService) RegisterUser(ctx context.Context, user *models.User) error {
 	// check username
-	isUsername, err := s.repo.IsUsernameExist(user.Username)
+	isUsername, err := s.repo.IsUsernameExist(ctx, user.Username)
 	if err != nil {
 		return err
 	}
@@ -27,7 +28,7 @@ func (s *UserService) RegisterUser(user *models.User) error {
 	}
 
 	// check email
-	isEmail, err := s.repo.IsEmailExist(*user.Email)
+	isEmail, err := s.repo.IsEmailExist(ctx, *user.Email)
 	if err != nil {
 		return err
 	}
@@ -42,11 +43,11 @@ func (s *UserService) RegisterUser(user *models.User) error {
 	}
 
 	user.Password = hashPw
-	return s.repo.CreateUser(user)
+	return s.repo.CreateUser(ctx, user)
 }
 
-func (s UserService) VerifyLogin(user *models.Login) error {
-	userDetail, err := s.repo.GetUserByEmail(user.Email)
+func (s UserService) VerifyLogin(ctx context.Context, user *models.Login) error {
+	userDetail, err := s.repo.GetUserByEmail(ctx, user.Email)
 	if err != nil {
 		return err
 	}

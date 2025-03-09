@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"api/models"
+	"context"
 	"errors"
 
 	"gorm.io/gorm"
@@ -15,22 +16,22 @@ func NewUserRepositories(db *gorm.DB) *UserRepositories {
 	return &UserRepositories{DB: db}
 }
 
-func (r *UserRepositories) CreateUser(user *models.User) error {
-	return r.DB.Create(&user).Error
+func (r *UserRepositories) CreateUser(ctx context.Context, user *models.User) error {
+	return r.DB.WithContext(ctx).Create(&user).Error
 }
 
-func (r *UserRepositories) GetUserByEmail(email string) (*models.User, error) {
+func (r *UserRepositories) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
 	var user models.User
-	err := r.DB.Where("email = ?", email).First(&user).Error
+	err := r.DB.WithContext(ctx).Where("email = ?", email).First(&user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
 	return &user, err
 }
 
-func (r *UserRepositories) GetUserByUsername(username string) (*models.User, error) {
+func (r *UserRepositories) GetUserByUsername(ctx context.Context, username string) (*models.User, error) {
 	var user models.User
-	err := r.DB.Where("username = ?", username).First(&user).Error
+	err := r.DB.WithContext(ctx).Where("username = ?", username).First(&user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
@@ -38,8 +39,8 @@ func (r *UserRepositories) GetUserByUsername(username string) (*models.User, err
 	return &user, err
 }
 
-func (r *UserRepositories) IsEmailExist(email string) (bool, error) {
-	user, err := r.GetUserByEmail(email)
+func (r *UserRepositories) IsEmailExist(ctx context.Context, email string) (bool, error) {
+	user, err := r.GetUserByEmail(ctx, email)
 	if err != nil {
 		return false, err
 	}
@@ -47,8 +48,8 @@ func (r *UserRepositories) IsEmailExist(email string) (bool, error) {
 	return user != nil, nil
 }
 
-func (r *UserRepositories) IsUsernameExist(username string) (bool, error) {
-	user, err := r.GetUserByUsername(username)
+func (r *UserRepositories) IsUsernameExist(ctx context.Context, username string) (bool, error) {
+	user, err := r.GetUserByUsername(ctx, username)
 	if err != nil {
 		return false, err
 	}
