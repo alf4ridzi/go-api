@@ -27,8 +27,8 @@ func MapRoutes(r *gin.Engine) {
 		// index
 		api.GET("/", indexController.Index)
 		// login
-		api.POST("/login", userController.Login)
+		api.POST("/auth/login", userController.Login)
 		// register
-		api.POST("/register", userController.Register)
+		api.POST("/auth/register", userController.Register)
 	}
 }

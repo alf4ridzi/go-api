@@ -46,7 +46,7 @@ func (s *AuthService) RegisterUser(ctx context.Context, user *models.User) error
 	return s.repo.CreateUser(ctx, user)
 }
 
-func (s AuthService) VerifyLogin(ctx context.Context, user *models.Login) error {
+func (s *AuthService) VerifyLogin(ctx context.Context, user *models.Login) error {
 	userDetail, err := s.repo.GetUserByEmail(ctx, user.Email)
 	if err != nil {
 		return err
