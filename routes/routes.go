@@ -15,15 +15,18 @@ func MapRoutes(r *gin.Engine) {
 	// index
 	indexController := controllers.NewIndexController()
 
-	// profile controller
-	profileController := controllers.NewProfileController()
-
 	// user repo
 	userRepo := repositories.NewUserRepositories(db)
 	// auth service
 	authService := services.NewAuthService(userRepo)
 	// auth controller
 	userController := controllers.NewAuthController(authService)
+
+	// profile
+	profileService := services.NewProfileService(userRepo)
+
+	// profile controller
+	profileController := controllers.NewProfileController(profileService)
 
 	api := r.Group("/api")
 	{
