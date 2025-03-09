@@ -2,11 +2,17 @@ package services
 
 import (
 	"api/crypto"
+	"api/initializers"
 	"api/models"
 	"api/repositories"
 	"context"
 	"errors"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
+
+var jwtSecret = []byte(initializers.GetJwtSecret())
 
 type AuthService struct {
 	repo *repositories.UserRepositories
@@ -46,19 +52,25 @@ func (s *AuthService) RegisterUser(ctx context.Context, user *models.User) error
 	return s.repo.CreateUser(ctx, user)
 }
 
-func (s *AuthService) VerifyLogin(ctx context.Context, user *models.Login) error {
-	userDetail, err := s.repo.GetUserByEmail(ctx, user.Email)
+func (s *AuthService) VerifyLogin(ctx context.Context, user *models.Login) (string, error) {
+	userDetail, err := s.repo.GetUserByUsername(ctx, user.Username)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	if userDetail == nil {
-		return errors.New("invalid email or password")
+		return "", errors.New("invalid username or password")
 	}
 
 	if !crypto.CheckPasswordHash(user.Password, userDetail.Password) {
-		return errors.New("invalid email or password")
+		return "", errors.New("invalid username or password")
 	}
 
-	return nil
+	claims := jwt.MapClaims{
+		"username": user.Username,
+		"exp":      time.Now().Add(time.Hour * 2).Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(jwtSecret)
 }

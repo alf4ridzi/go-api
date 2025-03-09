@@ -50,10 +50,11 @@ func (c *AuthController) Login(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.VerifyLogin(reqCtx, &user); err != nil {
+	token, err := c.service.VerifyLogin(reqCtx, &user)
+	if err != nil {
 		handlers.ResponseJson(ctx, http.StatusUnauthorized, "error", err.Error(), nil)
 		return
 	}
 
-	handlers.ResponseJson(ctx, http.StatusOK, "success", "", nil)
+	handlers.ResponseJson(ctx, http.StatusOK, "success", token, nil)
 }
