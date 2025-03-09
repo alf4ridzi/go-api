@@ -2,17 +2,12 @@ package services
 
 import (
 	"api/crypto"
-	"api/initializers"
 	"api/models"
 	"api/repositories"
+	"api/utils"
 	"context"
 	"errors"
-	"time"
-
-	"github.com/golang-jwt/jwt/v5"
 )
-
-var jwtSecret = []byte(initializers.GetJwtSecret())
 
 type AuthService struct {
 	repo *repositories.UserRepositories
@@ -66,11 +61,5 @@ func (s *AuthService) VerifyLogin(ctx context.Context, user *models.Login) (stri
 		return "", errors.New("invalid username or password")
 	}
 
-	claims := jwt.MapClaims{
-		"username": user.Username,
-		"exp":      time.Now().Add(time.Hour * 2).Unix(),
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtSecret)
+	return utils.CreateTokenJwt(user.Username)
 }

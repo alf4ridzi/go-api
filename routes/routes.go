@@ -15,6 +15,9 @@ func MapRoutes(r *gin.Engine) {
 	// index
 	indexController := controllers.NewIndexController()
 
+	// profile controller
+	profileController := controllers.NewProfileController()
+
 	// user repo
 	userRepo := repositories.NewUserRepositories(db)
 	// auth service
@@ -30,5 +33,7 @@ func MapRoutes(r *gin.Engine) {
 		api.POST("/auth/login", userController.Login)
 		// register
 		api.POST("/auth/register", userController.Register)
+		// profile view
+		api.GET("/get-profile", profileController.GetProfiles)
 	}
 }
