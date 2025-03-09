@@ -8,15 +8,15 @@ import (
 	"errors"
 )
 
-type UserService struct {
+type AuthService struct {
 	repo *repositories.UserRepositories
 }
 
-func NewUserService(repo *repositories.UserRepositories) *UserService {
-	return &UserService{repo: repo}
+func NewAuthService(repo *repositories.UserRepositories) *AuthService {
+	return &AuthService{repo: repo}
 }
 
-func (s *UserService) RegisterUser(ctx context.Context, user *models.User) error {
+func (s *AuthService) RegisterUser(ctx context.Context, user *models.User) error {
 	// check username
 	isUsername, err := s.repo.IsUsernameExist(ctx, user.Username)
 	if err != nil {
@@ -46,7 +46,7 @@ func (s *UserService) RegisterUser(ctx context.Context, user *models.User) error
 	return s.repo.CreateUser(ctx, user)
 }
 
-func (s UserService) VerifyLogin(ctx context.Context, user *models.Login) error {
+func (s AuthService) VerifyLogin(ctx context.Context, user *models.Login) error {
 	userDetail, err := s.repo.GetUserByEmail(ctx, user.Email)
 	if err != nil {
 		return err

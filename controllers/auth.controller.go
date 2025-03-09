@@ -11,15 +11,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type UserController struct {
-	service *services.UserService
+type AuthController struct {
+	service *services.AuthService
 }
 
-func NewUserController(service *services.UserService) *UserController {
-	return &UserController{service: service}
+func NewAuthController(service *services.AuthService) *AuthController {
+	return &AuthController{service: service}
 }
 
-func (c *UserController) Register(ctx *gin.Context) {
+func (c *AuthController) Register(ctx *gin.Context) {
 	var user models.User
 
 	// create context
@@ -39,7 +39,7 @@ func (c *UserController) Register(ctx *gin.Context) {
 	handlers.ResponseJson(ctx, http.StatusOK, "success", "", nil)
 }
 
-func (c *UserController) Login(ctx *gin.Context) {
+func (c *AuthController) Login(ctx *gin.Context) {
 	// create context
 	reqCtx, cancel := context.WithTimeout(ctx.Request.Context(), 5*time.Second)
 	defer cancel()
