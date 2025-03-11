@@ -21,7 +21,6 @@ func NewProfileController(service *services.ProfileService) *ProfileController {
 
 func (p *ProfileController) GetProfiles(ctx *gin.Context) {
 	// create context
-
 	reqCtx, cancel := context.WithTimeout(ctx.Request.Context(), 10*time.Second)
 	defer cancel()
 

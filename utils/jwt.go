@@ -27,6 +27,10 @@ func VerifyTokenJwt(tokenJwt string) error {
 	})
 
 	if err != nil {
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			return errors.New("token is expired")
+		}
+
 		return err
 	}
 
