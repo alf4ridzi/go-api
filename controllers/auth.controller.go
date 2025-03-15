@@ -20,15 +20,22 @@ func NewAuthController(service *services.AuthService) *AuthController {
 }
 
 func (c *AuthController) Register(ctx *gin.Context) {
-	var user models.User
+	var reg models.Register
 
 	// create context
 	reqCtx, cancel := context.WithTimeout(ctx.Request.Context(), 5*time.Second)
 	defer cancel()
 
-	if err := ctx.ShouldBindJSON(&user); err != nil {
+	if err := ctx.ShouldBindJSON(&reg); err != nil {
 		handlers.ResponseJson(ctx, http.StatusBadRequest, "error", err.Error(), nil)
 		return
+	}
+
+	user := models.User{
+		Username: reg.Username,
+		Name:     reg.Name,
+		Email:    &reg.Email,
+		Password: reg.Password,
 	}
 
 	if err := c.service.RegisterUser(reqCtx, &user); err != nil {
@@ -36,7 +43,7 @@ func (c *AuthController) Register(ctx *gin.Context) {
 		return
 	}
 
-	handlers.ResponseJson(ctx, http.StatusOK, "success", "", nil)
+	handlers.ResponseJson(ctx, http.StatusOK, "success", "Success create account!", nil)
 }
 
 func (c *AuthController) Login(ctx *gin.Context) {

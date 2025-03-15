@@ -39,6 +39,7 @@ func (s *AuthService) RegisterUser(ctx context.Context, user *models.User) error
 	}
 
 	hashPw, err := crypto.HashPassword(user.Password)
+
 	if err != nil {
 		return errors.New(err.Error())
 	}
