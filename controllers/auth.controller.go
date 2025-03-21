@@ -4,6 +4,7 @@ import (
 	"api/handlers"
 	"api/models"
 	"api/services"
+	"api/utils"
 	"context"
 	"net/http"
 	"time"
@@ -57,11 +58,15 @@ func (c *AuthController) Login(ctx *gin.Context) {
 		return
 	}
 
-	token, err := c.service.VerifyLogin(reqCtx, &user)
+	authToken, refreshToken, err := c.service.VerifyLogin(reqCtx, &user)
 	if err != nil {
 		handlers.ResponseJson(ctx, http.StatusUnauthorized, "error", err.Error(), nil)
 		return
 	}
 
-	handlers.ResponseJson(ctx, http.StatusOK, "success", token, nil)
+	cookiesManager := utils.Cookies{}
+	cookiesManager.SetCookie(ctx, "auth_token", authToken, 15*time.Minute)
+	cookiesManager.SetCookie(ctx, "refresh_token", refreshToken, 24*time.Hour)
+
+	handlers.ResponseJson(ctx, http.StatusOK, "success", "Success Login", nil)
 }

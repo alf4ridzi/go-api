@@ -27,7 +27,7 @@ func CreateRefreshToken() (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	return token.SignedString(claims)
+	return token.SignedString([]byte(initializers.GetRefreshSecret()))
 }
 
 func VerifyTokenJwt(jwtSecret []byte, tokenJwt string) error {
@@ -36,7 +36,7 @@ func VerifyTokenJwt(jwtSecret []byte, tokenJwt string) error {
 	})
 
 	if err != nil {
-		if errors.Is(err, jwt.ErrTokenExpired) {
+		if errors.Is(err, jwt.ErrTokenExpired) || errors.Is(err, jwt.ErrTokenNotValidYet) {
 			return errors.New("token is expired")
 		}
 
@@ -83,4 +83,18 @@ func GetUsernameFromJwtAuth(tokenJwt string) (string, error) {
 	}
 
 	return username, nil
+}
+
+func CreateAuthRefreshToken(username string) (string, string, error) {
+	authToken, err := CreateAuthToken(username)
+	if err != nil {
+		return "", "", err
+	}
+
+	refreshToken, err := CreateRefreshToken()
+	if err != nil {
+		return "", "", err
+	}
+
+	return authToken, refreshToken, nil
 }

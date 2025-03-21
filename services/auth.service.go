@@ -48,19 +48,19 @@ func (s *AuthService) RegisterUser(ctx context.Context, user *models.User) error
 	return s.repo.CreateUser(ctx, user)
 }
 
-func (s *AuthService) VerifyLogin(ctx context.Context, user *models.Login) (string, error) {
+func (s *AuthService) VerifyLogin(ctx context.Context, user *models.Login) (string, string, error) {
 	userDetail, err := s.repo.GetUserByUsername(ctx, user.Username)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	if userDetail == nil {
-		return "", errors.New("invalid username or password")
+		return "", "", errors.New("invalid username or password")
 	}
 
 	if !crypto.CheckPasswordHash(user.Password, userDetail.Password) {
-		return "", errors.New("invalid username or password")
+		return "", "", errors.New("invalid username or password")
 	}
 
-	return utils.CreateAuthToken(user.Username)
+	return utils.CreateAuthRefreshToken(user.Username)
 }
