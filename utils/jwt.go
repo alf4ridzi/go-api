@@ -8,20 +8,32 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var jwtSecret = []byte(initializers.GetJwtSecret())
+var authSecret = []byte(initializers.GetAuthSecret())
+var refreshSecret = []byte(initializers.GetRefreshSecret())
 
-func CreateTokenJwt(username string) (string, error) {
+// create auth
+func CreateAuthToken(username string) (string, error) {
 	claims := jwt.MapClaims{
 		"username": username,
-		"exp":      time.Now().Add(3 * time.Hour).Unix(),
+		"exp":      time.Now().Add(15 * time.Minute).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	return token.SignedString(jwtSecret)
+	return token.SignedString(authSecret)
 }
 
-func VerifyTokenJwt(tokenJwt string) error {
+func CreateRefreshToken() (string, error) {
+	claims := jwt.MapClaims{
+		"exp": time.Now().Add(24 * time.Hour).Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	return token.SignedString(claims)
+}
+
+func VerifyTokenJwt(jwtSecret string, tokenJwt string) error {
 	token, err := jwt.Parse(tokenJwt, func(t *jwt.Token) (interface{}, error) {
 		return jwtSecret, nil
 	})
@@ -41,10 +53,18 @@ func VerifyTokenJwt(tokenJwt string) error {
 	return nil
 }
 
+func VerifyJwtAuth(tokenJwt string) error {
+	return VerifyTokenJwt(string(authSecret), tokenJwt)
+}
+
+func VerifyJwtRefresh(tokenJwt string) error {
+	return VerifyTokenJwt(string(refreshSecret), tokenJwt)
+}
+
 func DecodeJwtToken(tokenJwt string) (map[string]any, error) {
 	claims := jwt.MapClaims{}
 	_, err := jwt.ParseWithClaims(tokenJwt, claims, func(t *jwt.Token) (interface{}, error) {
-		return jwtSecret, nil
+		return authSecret, nil
 	})
 
 	if err != nil {
@@ -54,7 +74,7 @@ func DecodeJwtToken(tokenJwt string) (map[string]any, error) {
 	return claims, nil
 }
 
-func GetUsernameFromJwt(tokenJwt string) (string, error) {
+func GetUsernameFromJwtAuth(tokenJwt string) (string, error) {
 	dec, err := DecodeJwtToken(tokenJwt)
 	if err != nil {
 		return "", err

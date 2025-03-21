@@ -4,6 +4,10 @@ import (
 	"os"
 )
 
-func GetJwtSecret() string {
-	return os.Getenv("JWT_SECRET")
+func GetAuthSecret() string {
+	return os.Getenv("AUTH_SECRET")
+}
+
+func GetRefreshSecret() string {
+	return os.Getenv("REFRESH_SECRET")
 }

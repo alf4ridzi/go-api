@@ -32,7 +32,7 @@ func (p *ProfileController) GetProfiles(ctx *gin.Context) {
 		return
 	}
 
-	if err := utils.VerifyTokenJwt(tokenJwt); err != nil {
+	if err := utils.VerifyJwtAuth(tokenJwt); err != nil {
 		handlers.ResponseJson(ctx, http.StatusUnauthorized, "fail", err.Error(), nil)
 		return
 	}
@@ -43,7 +43,7 @@ func (p *ProfileController) GetProfiles(ctx *gin.Context) {
 	// 	return
 	// }
 
-	username, err := utils.GetUsernameFromJwt(tokenJwt)
+	username, err := utils.GetUsernameFromJwtAuth(tokenJwt)
 	if err != nil {
 		handlers.ResponseJson(ctx, http.StatusUnauthorized, "fail", err.Error(), nil)
 		return
