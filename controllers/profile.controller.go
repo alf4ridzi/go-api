@@ -5,6 +5,7 @@ import (
 	"api/services"
 	"api/utils"
 	"context"
+	"log"
 	"net/http"
 	"time"
 
@@ -33,7 +34,8 @@ func (p *ProfileController) GetProfiles(ctx *gin.Context) {
 	}
 
 	if err := utils.VerifyJwtAuth(tokenJwt); err != nil {
-		handlers.ResponseJson(ctx, http.StatusUnauthorized, "fail", err.Error(), nil)
+		log.Println(err)
+		handlers.ResponseJson(ctx, http.StatusUnauthorized, "fail", "Invalid token", nil)
 		return
 	}
 
@@ -45,12 +47,14 @@ func (p *ProfileController) GetProfiles(ctx *gin.Context) {
 
 	username, err := utils.GetUsernameFromJwtAuth(tokenJwt)
 	if err != nil {
-		handlers.ResponseJson(ctx, http.StatusUnauthorized, "fail", err.Error(), nil)
+		log.Println(err)
+		handlers.ResponseJson(ctx, http.StatusUnauthorized, "fail", "Error get username", nil)
 		return
 	}
 
 	userProfile, err := p.service.GetUserProfile(reqCtx, username)
 	if err != nil {
+		log.Println(err)
 		handlers.ResponseJson(ctx, http.StatusUnauthorized, "fail", err.Error(), nil)
 		return
 	}

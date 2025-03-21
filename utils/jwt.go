@@ -33,7 +33,7 @@ func CreateRefreshToken() (string, error) {
 	return token.SignedString(claims)
 }
 
-func VerifyTokenJwt(jwtSecret string, tokenJwt string) error {
+func VerifyTokenJwt(jwtSecret []byte, tokenJwt string) error {
 	token, err := jwt.Parse(tokenJwt, func(t *jwt.Token) (interface{}, error) {
 		return jwtSecret, nil
 	})
@@ -54,11 +54,11 @@ func VerifyTokenJwt(jwtSecret string, tokenJwt string) error {
 }
 
 func VerifyJwtAuth(tokenJwt string) error {
-	return VerifyTokenJwt(string(authSecret), tokenJwt)
+	return VerifyTokenJwt(authSecret, tokenJwt)
 }
 
 func VerifyJwtRefresh(tokenJwt string) error {
-	return VerifyTokenJwt(string(refreshSecret), tokenJwt)
+	return VerifyTokenJwt(refreshSecret, tokenJwt)
 }
 
 func DecodeJwtToken(tokenJwt string) (map[string]any, error) {
