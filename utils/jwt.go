@@ -8,9 +8,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var authSecret = []byte(initializers.GetAuthSecret())
-var refreshSecret = []byte(initializers.GetRefreshSecret())
-
 // create auth
 func CreateAuthToken(username string) (string, error) {
 	claims := jwt.MapClaims{
@@ -20,7 +17,7 @@ func CreateAuthToken(username string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	return token.SignedString(authSecret)
+	return token.SignedString([]byte(initializers.GetAuthSecret()))
 }
 
 func CreateRefreshToken() (string, error) {
@@ -54,17 +51,17 @@ func VerifyTokenJwt(jwtSecret []byte, tokenJwt string) error {
 }
 
 func VerifyJwtAuth(tokenJwt string) error {
-	return VerifyTokenJwt(authSecret, tokenJwt)
+	return VerifyTokenJwt([]byte(initializers.GetAuthSecret()), tokenJwt)
 }
 
 func VerifyJwtRefresh(tokenJwt string) error {
-	return VerifyTokenJwt(refreshSecret, tokenJwt)
+	return VerifyTokenJwt([]byte(initializers.GetRefreshSecret()), tokenJwt)
 }
 
 func DecodeJwtToken(tokenJwt string) (map[string]any, error) {
 	claims := jwt.MapClaims{}
 	_, err := jwt.ParseWithClaims(tokenJwt, claims, func(t *jwt.Token) (interface{}, error) {
-		return authSecret, nil
+		return []byte(initializers.GetAuthSecret()), nil
 	})
 
 	if err != nil {
