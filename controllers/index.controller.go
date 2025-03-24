@@ -6,8 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type IndexController struct {
-}
+type IndexController struct{}
 
 func NewIndexController() *IndexController {
 	return &IndexController{}

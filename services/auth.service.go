@@ -62,5 +62,5 @@ func (s *AuthService) VerifyLogin(ctx context.Context, user *models.Login) (stri
 		return "", "", errors.New("invalid username or password")
 	}
 
-	return utils.CreateAuthRefreshToken(user.Username)
+	return utils.CreateAuthRefreshToken(user.Username, string(userDetail.Role))
 }

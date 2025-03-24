@@ -66,6 +66,10 @@ func (c *AuthController) Login(ctx *gin.Context) {
 			handlers.ResponseJson(ctx, http.StatusAccepted, "success", "Already log in", nil)
 			return
 		}
+
+		if err != nil {
+			cookiesManager.DeleteCookie(ctx, "auth_token")
+		}
 	}
 
 	// refreshToken, err := cookiesManager.GetCookie(ctx, "refresh_token")

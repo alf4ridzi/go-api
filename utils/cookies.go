@@ -15,3 +15,7 @@ func (c *Cookies) SetCookie(ctx *gin.Context, name string, value string, expiry 
 func (c *Cookies) GetCookie(ctx *gin.Context, name string) (string, error) {
 	return ctx.Cookie(name)
 }
+
+func (c *Cookies) DeleteCookie(ctx *gin.Context, name string) {
+	ctx.SetCookie(name, "", 0, "/", "", false, true)
+}

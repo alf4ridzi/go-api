@@ -9,9 +9,10 @@ import (
 )
 
 // create auth
-func CreateAuthToken(username string) (string, error) {
+func CreateAuthToken(username string, role string) (string, error) {
 	claims := jwt.MapClaims{
 		"username": username,
+		"role":     role,
 		"exp":      time.Now().Add(15 * time.Minute).Unix(),
 	}
 
@@ -20,9 +21,10 @@ func CreateAuthToken(username string) (string, error) {
 	return token.SignedString([]byte(initializers.GetAuthSecret()))
 }
 
-func CreateRefreshToken() (string, error) {
+func CreateRefreshToken(username string) (string, error) {
 	claims := jwt.MapClaims{
-		"exp": time.Now().Add(24 * time.Hour).Unix(),
+		"username": username,
+		"exp":      time.Now().Add(24 * time.Hour).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -85,13 +87,13 @@ func GetUsernameFromJwtAuth(tokenJwt string) (string, error) {
 	return username, nil
 }
 
-func CreateAuthRefreshToken(username string) (string, string, error) {
-	authToken, err := CreateAuthToken(username)
+func CreateAuthRefreshToken(username string, role string) (string, string, error) {
+	authToken, err := CreateAuthToken(username, role)
 	if err != nil {
 		return "", "", err
 	}
 
-	refreshToken, err := CreateRefreshToken()
+	refreshToken, err := CreateRefreshToken(username)
 	if err != nil {
 		return "", "", err
 	}
