@@ -60,26 +60,10 @@ func (c *AuthController) Login(ctx *gin.Context) {
 
 	cookiesManager := utils.Cookies{}
 	authToken, err := cookiesManager.GetCookie(ctx, "auth_token")
-	if err == nil {
-		err = utils.VerifyJwtAuth(authToken)
-		if err == nil {
-			handlers.ResponseJson(ctx, http.StatusAccepted, "success", "Already log in", nil)
-			return
-		}
-
-		if err != nil {
-			cookiesManager.DeleteCookie(ctx, "auth_token")
-		}
+	if err == nil && utils.VerifyJwtAuth(authToken) == nil {
+		handlers.ResponseJson(ctx, http.StatusAccepted, "success", "Already log in", nil)
+		return
 	}
-
-	// refreshToken, err := cookiesManager.GetCookie(ctx, "refresh_token")
-	// if err == nil {
-	// 	err = utils.VerifyJwtRefresh(refreshToken)
-	// 	if err == nil {
-	// 		handlers.ResponseJson(ctx, http.StatusAccepted, "success", "Already log in", nil)
-	// 		return
-	// 	}
-	// }
 
 	authToken, refreshToken, err := c.service.VerifyLogin(reqCtx, &user)
 	if err != nil {

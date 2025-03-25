@@ -26,10 +26,11 @@ func (p *ProfileController) GetProfiles(ctx *gin.Context) {
 	defer cancel()
 
 	ctx.Header("Content-Type", "application/json")
-	tokenJwt := ctx.Request.Header.Get("Authorization")
+	cookiesManager := utils.Cookies{}
+	tokenJwt, err := cookiesManager.GetCookie(ctx, "auth_token")
 
-	if tokenJwt == "" {
-		handlers.ResponseJson(ctx, http.StatusUnauthorized, "fail", "missing token header", nil)
+	if err != nil {
+		handlers.ResponseJson(ctx, http.StatusInternalServerError, "error", "unable to read cookies", nil)
 		return
 	}
 
