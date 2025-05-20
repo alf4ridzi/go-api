@@ -27,7 +27,6 @@ func MapRoutes(r *gin.Engine) {
 
 	// profile controller
 	profileController := controllers.NewProfileController(profileService)
-
 	api := r.Group("/api")
 	{
 		// index
@@ -38,5 +37,7 @@ func MapRoutes(r *gin.Engine) {
 		api.POST("/auth/register", userController.Register)
 		// profile view
 		api.GET("/get-profile", profileController.GetProfiles)
+		// refresh
+		api.GET("/refresh", userController.RefreshToken)
 	}
 }

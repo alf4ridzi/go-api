@@ -3,6 +3,7 @@ package utils
 import (
 	"api/initializers"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -60,7 +61,7 @@ func VerifyJwtRefresh(tokenJwt string) error {
 	return VerifyTokenJwt([]byte(initializers.GetRefreshSecret()), tokenJwt)
 }
 
-func DecodeJwtToken(tokenJwt string) (map[string]any, error) {
+func DecodeJwtToken(secret string, tokenJwt string) (map[string]any, error) {
 	claims := jwt.MapClaims{}
 	_, err := jwt.ParseWithClaims(tokenJwt, claims, func(t *jwt.Token) (interface{}, error) {
 		return []byte(initializers.GetAuthSecret()), nil
@@ -74,7 +75,7 @@ func DecodeJwtToken(tokenJwt string) (map[string]any, error) {
 }
 
 func GetUsernameFromJwtAuth(tokenJwt string) (string, error) {
-	dec, err := DecodeJwtToken(tokenJwt)
+	dec, err := DecodeJwtToken(initializers.GetAuthSecret(), tokenJwt)
 	if err != nil {
 		return "", err
 	}
@@ -85,6 +86,26 @@ func GetUsernameFromJwtAuth(tokenJwt string) (string, error) {
 	}
 
 	return username, nil
+}
+
+func GetValueJwt(secret string, tokenJwt string, key string) (string, error) {
+	dec, err := DecodeJwtToken(key, tokenJwt)
+	if err != nil {
+		return "", err
+	}
+
+	value, ok := dec[key].(string)
+	if !ok {
+		return "", fmt.Errorf("%s is not found", key)
+	}
+
+	return value, nil
+}
+
+func CreateJwtToken(secretKey string, claims jwt.MapClaims) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	return token.SignedString([]byte(secretKey))
 }
 
 func CreateAuthRefreshToken(username string, role string) (string, string, error) {

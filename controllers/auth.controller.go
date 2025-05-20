@@ -1,8 +1,11 @@
 package controllers
 
 import (
+	"api/database"
 	"api/handlers"
+	"api/initializers"
 	"api/models"
+	"api/repositories"
 	"api/services"
 	"api/utils"
 	"context"
@@ -10,6 +13,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type AuthController struct {
@@ -75,4 +79,67 @@ func (c *AuthController) Login(ctx *gin.Context) {
 	cookiesManager.SetCookie(ctx, "refresh_token", refreshToken, 24*time.Hour)
 
 	handlers.ResponseJson(ctx, http.StatusOK, "success", "Success Login", nil)
+}
+
+func (c *AuthController) RefreshToken(ctx *gin.Context) {
+	cookiesManager := utils.Cookies{}
+	refresh_token, err := cookiesManager.GetCookie(ctx, "refresh_token")
+	if err != nil {
+		handlers.ResponseJson(ctx, 200, "fail", err.Error(), nil)
+		return
+	}
+
+	if refresh_token == "" {
+		handlers.ResponseJson(ctx, 200, "fail", "Refresh token is not found", nil)
+		return
+	}
+
+	refresh_token_secret := utils.Env("REFRESH_SECRET")
+
+	if err := utils.VerifyJwtRefresh(refresh_token); err != nil {
+		handlers.ResponseJson(ctx, 200, "fail", err.Error(), nil)
+		return
+	}
+
+	username, err := utils.GetValueJwt(initializers.GetRefreshSecret(), refresh_token, "username")
+	if err != nil {
+		handlers.ResponseJson(ctx, 500, "error", err.Error(), nil)
+		return
+	}
+
+	userRepositories := repositories.NewUserRepositories(database.DB)
+
+	Reqctx, cancel := context.WithTimeout(ctx.Request.Context(), 10)
+	defer cancel()
+
+	user, err := userRepositories.GetUserByUsername(Reqctx, username)
+	if err != nil {
+		handlers.ResponseJson(ctx, 500, "error", err.Error(), nil)
+		return
+	}
+
+	if user == nil {
+		handlers.ResponseJson(ctx, 200, "fail", "user is not found", nil)
+		return
+	}
+
+	claims := jwt.MapClaims{
+		"username": username,
+		"role":     user.Role,
+		"exp":      time.Now().Add(15 * time.Minute).Unix(),
+	}
+
+	token, err := utils.CreateJwtToken(refresh_token_secret, claims)
+	if err != nil {
+		handlers.ResponseJson(ctx, 200, "fail", "error create new token", nil)
+		return
+	}
+
+	cookiesManager.SetCookie(ctx, "auth_token", token, 15*time.Minute)
+
+	data := map[string]string{
+		"token": token,
+	}
+
+	handlers.ResponseJson(ctx, 200, "success", "success create new token", data)
 }
